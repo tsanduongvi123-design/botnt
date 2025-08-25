@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Script chạy botnt.py ngầm khi Termux mở, không in log, không phụ thuộc tool gộp VIP.
-Tối ưu Termux, fallback RAM, đảm bảo bot sống.
+Tối ưu Termux, fallback RAM, đảm bảo bot sống, tránh chạy nhiều instance.
 """
 import os
 import sys
@@ -10,8 +10,18 @@ import subprocess
 import tempfile
 from subprocess import DEVNULL
 
+def is_bot_running():
+    """Kiểm tra xem botnt.py đã chạy chưa."""
+    try:
+        result = subprocess.run(["ps", "-e"], capture_output=True, text=True)
+        return "botnt.py" in result.stdout
+    except:
+        return False
+
 def run_botnt():
     """Chạy botnt.py ngầm, không in log lỗi, tối ưu Termux, fallback RAM."""
+    if is_bot_running():
+        return  # Không chạy lại nếu bot đã chạy
     try:
         # Gọi termux-wake-lock để ngăn giết process
         subprocess.run(["termux-wake-lock"], stdout=DEVNULL, stderr=DEVNULL)
